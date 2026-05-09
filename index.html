@@ -392,9 +392,12 @@
       border: 1px solid var(--border);
       border-radius: 4px;
       transition: all 0.2s;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 8px;
+      cursor: pointer;
+     -webkit-user-select: none;
+      user-select: none;
     }
     .contact-link:hover {
       border-color: var(--accent);
