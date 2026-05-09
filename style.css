@@ -1,0 +1,132 @@
+
+:root {
+  --bg: #020812;
+  --surface: #0a1628;
+  --accent: #00d4ff;
+  --accent2: #7b2fff;
+  --text: #e2e8f0;
+  --muted: #4a6080;
+  --border: #0f2040;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Syne', sans-serif; 
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+
+nav {
+  position: fixed;
+  top: 0; width: 100%;
+  padding: 20px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(2, 8, 18, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: 20px;
+  font-size: 0.8rem;
+  transition: 0.3s;
+}
+
+.nav-links a:hover { color: var(--accent); }
+
+
+.hero {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 0 10%;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  line-height: 1.1;
+}
+
+.hero span {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+section {
+  max-width: 1100px;
+  margin: 100px auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  font-size: 2rem;
+  margin-bottom: 40px;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.project-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 30px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: 0.3s;
+}
+
+.project-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-5px);
+}
+
+
+@media (max-width: 768px) {
+  nav {
+    padding: 15px 5%;
+  }
+  
+  .nav-links {
+    display: none; 
+
+  .hero {
+    padding: 0 5%;
+    text-align: center;
+  }
+
+  .hero-btns {
+    justify-content: center;
+  }
+
+ 
+  .cursor, .cursor-ring {
+    display: none !important;
+  }
+}
+}
+
+
+#bg-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: -1;
+  opacity: 0.5;
+}

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sujud Alatrash | Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #020812;
+      --surface: #0a1628;
+      --accent: #00d4ff;
+      --accent2: #7b2fff;
+      --green: #00ff88;
+      --text: #e2e8f0;
+      --muted: #4a6080;
+      --border: #0f2040;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+    .cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, background 0.2s;
+      mix-blend-mode: screen;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.15s ease;
+      opacity: 0.5;
+    }
+    #bg-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      opacity: 0.4;
+    }
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, rgba(2,8,18,0.95), transparent);
+      backdrop-filter: blur(10px);
+    }
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+    .nav-links { display: flex; gap: 36px; }
+    .nav-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::before {
+      content: '// ';
+      color: var(--accent2);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::before { opacity: 1; }
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 0 60px;
+    }
+    .hero-content { max-width: 800px; }
+    .hero-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 800;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 48px;
+      max-width: 520px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.6s forwards;
+    }
+    .hero-sub .typing {
+      color: var(--green);
+      border-right: 2px solid var(--green);
+      animation: blink 0.8s step-end infinite;
+    }
+    @keyframes blink { 50% { border-color: transparent; } }
+    .hero-btns {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.8s forwards;
+    }
+    .btn-primary {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,212,255,0.3);
+    }
+    .btn-outline {
+      padding: 14px 32px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .scroll-indicator {
+      position: absolute;
+      bottom: 40px;
+      left: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 0.8s ease 1.2s forwards;
+    }
+    .scroll-line {
+      width: 40px; height: 1px;
+      background: var(--muted);
+      position: relative;
+      overflow: hidden;
+    }
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      left: -100%;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--accent);
+      animation: slide 2s ease infinite;
+    }
+    @keyframes slide { to { left: 100%; } }
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 120px 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      max-width: 80px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 60px;
+      line-height: 1.1;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+    .about-text {
+      font-size: 1.05rem;
+      color: #8aa0be;
+      line-height: 1.9;
+    }
+    .about-text p { margin-bottom: 20px; }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .skill-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .skill-item:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      transform: translateX(4px);
+    }
+    .skill-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .project-card:hover {
+      border-color: rgba(0,212,255,0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .project-card:hover::before { transform: scaleX(1); }
+    .project-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent2);
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+    .project-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .project-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .project-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--muted);
+    }
+    .project-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: gap 0.2s;
+    }
+    .project-card:hover .project-link { gap: 14px; }
+    .contact-inner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-inner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(0,212,255,0.04) 0%, transparent 70%);
+    }
+    .contact-inner h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .contact-inner p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 40px;
+    }
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .contact-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 12px 24px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .contact-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .nav-links { gap: 20px; }
+      .hero { padding: 0 24px; }
+      section { padding: 80px 24px; }
+      .about-grid { grid-template-columns: 1fr; }
+      .contact-inner { padding: 40px 24px; }
+      .scroll-indicator { left: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo">sujud.dev</div>
+  <div class="nav-links">
+    <a href="#about">about</a>
+    <a href="#projects">projects</a>
+    <a href="#contact">contact</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">&gt; hello_world.py</div>
+    <h1>Sujud<br><span>Alatrash</span></h1>
+    <div class="hero-sub">
+      Computer Science Student @ Ben-Gurion University<br>
+      <span class="typing" id="typing-text"></span>
+    </div>
+    <div class="hero-btns">
+      <a href="#projects" class="btn-primary">View Projects</a>
+      <a href="#contact" class="btn-outline">Get In Touch</a>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    scroll to explore
+  </div>
+</div>
+
+<section id="about">
+  <div class="section-label">01 &mdash; about</div>
+  <h2 class="section-title reveal">Who I Am</h2>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>I'm a Computer Science student at Ben-Gurion University with a passion for building real, working software. I thrive on picking up new technologies fast and turning ideas into code.</p>
+      <p>I embrace AI tools as a core part of my engineering workflow — using them not as a shortcut, but as a force multiplier to ship better work, faster.</p>
+      <p>Currently exploring Python, JavaScript, and web development while laying a strong foundation in algorithms and data structures.</p>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skill-item"><div class="skill-dot"></div>Python</div>
+      <div class="skill-item"><div class="skill-dot"></div>JavaScript</div>
+      <div class="skill-item"><div class="skill-dot"></div>C / C++</div>
+      <div class="skill-item"><div class="skill-dot"></div>Java</div>
+      <div class="skill-item"><div class="skill-dot"></div>HTML5 / CSS3</div>
+      <div class="skill-item"><div class="skill-dot"></div>SQL</div>
+      <div class="skill-item"><div class="skill-dot"></div>Git / GitHub</div>
+      <div class="skill-item"><div class="skill-dot"></div>Linux</div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="section-label">02 &mdash; projects</div>
+  <h2 class="section-title reveal">What I've Built</h2>
+  <div class="projects-grid">
+    <a class="project-card reveal" href="https://github.com/Sujud1/Expense-Tracker" target="_blank">
+      <div class="project-num">project_01.py</div>
+      <div class="project-title">Expense Tracker CLI</div>
+      <div class="project-desc">A command-line application to log, categorize, and summarize personal expenses. Data persists automatically between sessions using JSON file storage.</div>
+      <div class="project-tags">
+        <span class="tag">Python</span>
+        <span class="tag">JSON</span>
+        <span class="tag">CLI</span>
+        <span class="tag">File I/O</span>
+      </div>
+      <div class="project-link">View on GitHub &rarr;</div>
+    </a>
+    <a class="project-card reveal" href="https://github.com/Sujud1/portfolio" target="_blank">
+      <div class="project-num">project_02.html</div>
+      <div class="project-title">Portfolio Website</div>
+      <div class="project-desc">This site — a responsive personal portfolio built from scratch with HTML, CSS, and JavaScript. Features animations, a particle background, and a custom cursor.</div>
+      <div class="project-tags">
+        <span class="tag">HTML5</span>
+        <span class="tag">CSS3</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">Responsive</span>
+      </div>
+      <div class="project-link">View on GitHub &rarr;</div>
+    </a>
+    <a class="project-card reveal" href="https://github.com/Sujud1/sql-practice" target="_blank">
+      <div class="project-num">project_03.sql</div>
+      <div class="project-title">SQL Data Analysis</div>
+      <div class="project-desc">SQL-style data analysis on a student dataset using Python. Covers filtering, grouping, aggregation, ranking, and statistical summaries — simulating real database queries.</div>
+      <div class="project-tags">
+        <span class="tag">Python</span>
+        <span class="tag">SQL</span>
+        <span class="tag">Data Analysis</span>
+        <span class="tag">Algorithms</span>
+      </div>
+      <div class="project-link">View on GitHub &rarr;</div>
+    </a>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-label">03 &mdash; contact</div>
+  <div class="contact-inner reveal">
+    <h2>Let's Connect</h2>
+    <p>// open to internships, collaborations, and new opportunities</p>
+    <div class="contact-links">
+      <a href="mailto:sogodal@post.bgu.ac.il" class="contact-link">✉ Email</a>
+      <a href="https://linkedin.com/in/sujud-alatrash-aa2805363" target="_blank" class="contact-link">in LinkedIn</a>
+      <a href="https://github.com/Sujud1" target="_blank" class="contact-link">&lt;/&gt; GitHub</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  &copy; 2026 Sujud Alatrash &mdash; built with HTML, CSS &amp; JS
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+      ring.style.opacity = '0.2';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.opacity = '0.5';
+    });
+  });
+
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r  = Math.random() * 1.5 + 0.5;
+      this.alpha = Math.random() * 0.5 + 0.1;
+      this.color = Math.random() > 0.5 ? '0,212,255' : '123,47,255';
+    }
+    update() {
+      this.x += this.vx; this.y += this.vy;
+      if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${this.color},${this.alpha})`;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+  function drawLines() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 100) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0,212,255,${0.06 * (1 - dist/100)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => { p.update(); p.draw(); });
+    drawLines();
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  const phrases = [
+    'building real software.',
+    'learning every day.',
+    'passionate about CS.',
+    'open to internships.',
+  ];
+  let pi = 0, ci = 0, deleting = false;
+  const el = document.getElementById('typing-text');
+
+  function type() {
+    const phrase = phrases[pi];
+    if (!deleting) {
+      el.textContent = phrase.slice(0, ++ci);
+      if (ci === phrase.length) { deleting = true; setTimeout(type, 1800); return; }
+    } else {
+      el.textContent = phrase.slice(0, --ci);
+      if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; }
+    }
+    setTimeout(type, deleting ? 45 : 85);
+  }
+  type();
+
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  reveals.forEach(r => obs.observe(r));
+</script>
+</body>
+</html>
