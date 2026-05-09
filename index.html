@@ -52,6 +52,7 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       z-index: 0;
+      pointer-events: none;
     }
     nav {
       position: fixed;
@@ -389,6 +390,8 @@
       justify-content: center;
       gap: 20px;
       flex-wrap: wrap;
+      position: relative;
+      z-index: 10;
     }
     .contact-link {
       font-family: 'JetBrains Mono', monospace;
@@ -405,10 +408,27 @@
       cursor: pointer;
       -webkit-user-select: none;
       user-select: none;
+      background: var(--surface);
+      pointer-events: auto;
     }
     .contact-link:hover {
       border-color: var(--accent);
       color: var(--accent);
+    }
+    #email-tooltip {
+      display: none;
+      position: absolute;
+      top: -45px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #000;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      font-weight: bold;
+      z-index: 1000;
     }
     footer {
       position: relative;
@@ -540,7 +560,10 @@
     <h2>Let's Connect</h2>
     <p>// open to internships, collaborations, and new opportunities</p>
     <div class="contact-links">
-      <a href="mailto:sogodal@post.bgu.ac.il" class="contact-link">✉ Email</a>
+      <div style="position: relative; display: inline-block;">
+        <span id="email-btn" class="contact-link">✉ Email</span>
+        <div id="email-tooltip">sogodal@post.bgu.ac.il</div>
+      </div>
       <a href="tel:+972506418908" class="contact-link">📱 050-641-8908</a>
       <a href="https://www.linkedin.com/in/sujud-alatrash-aa2805363" target="_blank" class="contact-link">in LinkedIn</a>
       <a href="https://github.com/Sujud1" target="_blank" class="contact-link">&lt;/&gt; GitHub</a>
@@ -554,7 +577,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-  // ── Custom cursor ──
   const cursor = document.getElementById('cursor');
   const ring   = document.getElementById('cursor-ring');
   let mx = 0, my = 0, rx = 0, ry = 0;
@@ -568,12 +590,11 @@
     ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
     requestAnimationFrame(animRing);
   })();
-  document.querySelectorAll('a, button').forEach(el => {
+  document.querySelectorAll('a, button, .contact-link').forEach(el => {
     el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.5)'; ring.style.opacity = '0.2'; });
     el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)';   ring.style.opacity = '0.5'; });
   });
 
-  // ── Three.js 3D Background ──
   const canvas = document.getElementById('bg-canvas');
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -589,17 +610,11 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  // Colors
   const C1 = new THREE.Color(0x00d4ff);
   const C2 = new THREE.Color(0x7b2fff);
   const C3 = new THREE.Color(0x00ff88);
-
   const objects = [];
-
-  // Helper: random range
   const rnd = (a, b) => a + Math.random() * (b - a);
-
-  // ── Floating code symbols as Text sprites ──
   const symbols = ['{ }', '</>', '01', 'def', '[]', '=>', '#!/', 'git', 'py', 'SQL', '∑', 'λ', 'if()', 'for'];
 
   function makeSprite(text, color) {
@@ -634,10 +649,9 @@
   symbols.forEach((sym, i) => {
     const color = [C1, C2, C3][i % 3];
     makeSprite(sym, color);
-    if (sym.length <= 3) makeSprite(sym, color); // duplicate short ones
+    if (sym.length <= 3) makeSprite(sym, color);
   });
 
-  // ── Wireframe geometries floating ──
   const geos = [
     new THREE.IcosahedronGeometry(0.4, 0),
     new THREE.OctahedronGeometry(0.35, 0),
@@ -662,7 +676,6 @@
     objects.push(mesh);
   });
 
-  // ── Grid of dots ──
   const dotGeo = new THREE.BufferGeometry();
   const dotCount = 200;
   const positions = new Float32Array(dotCount * 3);
@@ -675,25 +688,21 @@
   const dotMat = new THREE.PointsMaterial({ color: 0x00d4ff, size: 0.04, transparent: true, opacity: 0.4 });
   scene.add(new THREE.Points(dotGeo, dotMat));
 
-  // ── Mouse parallax ──
   let mouseX = 0, mouseY = 0;
   document.addEventListener('mousemove', e => {
     mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
   });
 
-  // ── Animation loop ──
   const clock = new THREE.Clock();
   (function animate() {
     requestAnimationFrame(animate);
     const t = clock.getElapsedTime();
-
     objects.forEach(obj => {
       if (obj.isSprite) {
         obj.position.y += obj.userData.vy;
         obj.position.x += obj.userData.vx;
         obj.position.y += Math.sin(t + obj.userData.phase) * 0.001;
-        // wrap around
         if (obj.position.y >  7) obj.position.y = -7;
         if (obj.position.y < -7) obj.position.y =  7;
         if (obj.position.x >  10) obj.position.x = -10;
@@ -707,16 +716,12 @@
         if (obj.position.y < -6) obj.position.y =  6;
       }
     });
-
-    // Subtle camera parallax
     camera.position.x += (mouseX * 0.3 - camera.position.x) * 0.02;
     camera.position.y += (-mouseY * 0.2 - camera.position.y) * 0.02;
     camera.lookAt(scene.position);
-
     renderer.render(scene, camera);
   })();
 
-  // ── Typing effect ──
   const phrases = ['building real software.', 'learning every day.', 'passionate about CS.', 'open to internships.'];
   let pi = 0, ci = 0, deleting = false;
   const el = document.getElementById('typing-text');
@@ -733,11 +738,19 @@
   }
   type();
 
-  // ── Scroll reveal ──
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.15 });
   document.querySelectorAll('.reveal').forEach(r => obs.observe(r));
+
+  const emailBtn = document.getElementById('email-btn');
+  const emailTooltip = document.getElementById('email-tooltip');
+  emailBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    emailTooltip.style.display = 'block';
+    setTimeout(() => { emailTooltip.style.display = 'none'; }, 3000);
+  });
+  document.addEventListener('click', () => { emailTooltip.style.display = 'none'; });
 </script>
 </body>
 </html>

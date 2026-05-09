@@ -1,9 +1,9 @@
-
 :root {
   --bg: #020812;
   --surface: #0a1628;
   --accent: #00d4ff;
   --accent2: #7b2fff;
+  --green: #00ff88;
   --text: #e2e8f0;
   --muted: #4a6080;
   --border: #0f2040;
@@ -15,19 +15,36 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: 'Syne', sans-serif; 
+  font-family: 'Poppins', sans-serif; 
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
   overflow-x: hidden;
+  cursor: none; /* لإخفاء الماوس العادي واستخدام الدائرة */
 }
 
+/* --- Background Canvas --- */
+#bg-canvas {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none; /* مهم جداً للسماح بالنقر من خلاله */
+}
 
+/* --- Navigation --- */
 nav {
   position: fixed;
-  top: 0; width: 100%;
-  padding: 20px 5%;
+  top: 0; 
+  width: 100%;
+  padding: 20px 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -39,15 +56,18 @@ nav {
 .nav-links a {
   color: var(--muted);
   text-decoration: none;
-  margin-left: 20px;
+  margin-left: 36px;
   font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
   transition: 0.3s;
 }
 
 .nav-links a:hover { color: var(--accent); }
 
-
+/* --- Hero Section --- */
 .hero {
+  position: relative;
+  z-index: 1;
   height: 100vh;
   display: flex;
   align-items: center;
@@ -57,6 +77,7 @@ nav {
 .hero h1 {
   font-size: clamp(2.5rem, 8vw, 5rem);
   line-height: 1.1;
+  font-weight: 800;
 }
 
 .hero span {
@@ -65,68 +86,84 @@ nav {
   -webkit-text-fill-color: transparent;
 }
 
-
-section {
-  max-width: 1100px;
-  margin: 100px auto;
-  padding: 0 20px;
-}
-
-.section-title {
-  font-size: 2rem;
-  margin-bottom: 40px;
-}
-
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+/* --- Contact Section & Tooltip --- */
+.contact-links {
+  display: flex;
+  justify-content: center;
   gap: 20px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 10;
 }
 
-.project-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 30px;
-  border-radius: 12px;
+.contact-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
   text-decoration: none;
-  color: inherit;
-  transition: 0.3s;
+  padding: 12px 24px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: var(--surface);
+  pointer-events: auto; /* التأكد من قابلية النقر */
 }
 
-.project-card:hover {
+.contact-link:hover {
   border-color: var(--accent);
-  transform: translateY(-5px);
+  color: var(--accent);
 }
 
-
-@media (max-width: 768px) {
-  nav {
-    padding: 15px 5%;
-  }
-  
-  .nav-links {
-    display: none; 
-
-  .hero {
-    padding: 0 5%;
-    text-align: center;
-  }
-
-  .hero-btns {
-    justify-content: center;
-  }
-
- 
-  .cursor, .cursor-ring {
-    display: none !important;
-  }
-}
+/* تنسيق الإشعار (Tooltip) الذي يظهر فوق الإيميل */
+#email-tooltip {
+  display: none;
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #000;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  font-weight: bold;
+  z-index: 1100;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
-
-#bg-canvas {
+/* --- Custom Cursor --- */
+.cursor {
   position: fixed;
-  top: 0; left: 0;
-  z-index: -1;
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+}
+
+.cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
   opacity: 0.5;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  nav { padding: 15px 5%; }
+  .nav-links { display: none; }
+  .hero { padding: 0 5%; text-align: center; }
+  .cursor, .cursor-ring { display: none !important; }
+  body { cursor: auto; }
 }
